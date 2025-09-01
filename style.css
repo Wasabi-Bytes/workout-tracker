@@ -1,19 +1,19 @@
 :root{
-  --bg:#0b0f19;
-  --panel:#0f1526;
-  --ring:#1b2238;
-  --ink:#e8ecf4;
-  --muted:#93a0ba;
-  --red:#ef4444;     /* active heart */
-  --red-dim:#3b0b0b; /* subtle fill tint */
-  --accent:#60a5fa;  /* focus outline */
+  --bg:#fff;
+  --panel:#f9fafb;
+  --ring:#e5e7eb;
+  --ink:#111;
+  --muted:#555;
+  --red:#ef4444;
+  --red-dim:#fce7e7;
+  --accent:#2563eb;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;
-  background: radial-gradient(1000px 600px at 20% -10%, #10183a 0%, transparent 60%), linear-gradient(180deg, #090d17, var(--bg) 45%, #090d17);
-  color:var(--ink);
+  background:#fff;   /* plain white background */
+  color:#111;        /* switch text color to dark for contrast */
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
   -webkit-font-smoothing: antialiased;
 }
@@ -81,3 +81,30 @@ progress::-moz-progress-bar{background:linear-gradient(90deg,var(--red),#f87171)
   .overall{grid-template-columns:1fr;gap:12px}
   .big-heart{margin:0 auto}
 }
+/* Buddy hearts (Pokémon GO style) */
+.buddy{display:flex;gap:10px;align-items:center;margin-top:10px}
+.buddy-heart{
+  --pct: 0;                 /* 0..100 for partial heart */
+  --ring-bg:#2a334f;        /* unfilled ring color */
+  --ring-fill:var(--red);   /* filled ring color */
+  width:42px;height:42px;border-radius:50%;position:relative;isolation:isolate;
+}
+/* outer ring with partial fill via conic-gradient */
+.buddy-heart::before{
+  content:"";position:absolute;inset:0;border-radius:50%;
+  background:
+    conic-gradient(var(--ring-fill) calc(var(--pct)*1%), var(--ring-bg) 0);
+}
+/* inner circle to create ring thickness */
+.buddy-heart::after{
+  content:"";position:absolute;inset:5px;border-radius:50%;
+  background:var(--panel);box-shadow:inset 0 0 0 1px var(--ring);
+}
+/* the heart glyph in the center */
+.buddy-heart > span{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-size:18px;line-height:1;z-index:1;color:#f8d6d6;
+  text-shadow:0 1px 0 rgba(0,0,0,.25);
+}
+/* fully-filled hearts (100%) */
+.buddy-heart.full{--pct:100}
