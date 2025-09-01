@@ -1,115 +1,255 @@
+/* Fitness Hearts – modern iOS-like skin (drop-in, no JS changes) */
 :root {
-  --bg:#ffffff;         /* background */
-  --panel:#f9fafb;      /* card panels */
-  --ring:#e5e7eb;       /* subtle border */
-  --ink:#111827;        /* main text (near-black) */
-  --muted:#6b7280;      /* muted gray text */
-  --red:#ef4444;        /* active heart red */
-  --red-dim:#fee2e2;    /* faint heart background */
-  --accent:#3b82f6;     /* blue focus highlight */
+  /* Light theme */
+  --bg:               #0b1020;               /* deep blue canvas (subtle) */
+  --bg-grad-a:        #0b1020;
+  --bg-grad-b:        #141b34;
+  --panel:            rgba(255,255,255,0.08);/* glass card */
+  --panel-solid:      #0f152b;
+  --ring:             rgba(255,255,255,0.12);/* subtle hairline border */
+  --ink:              #e5e9f5;               /* primary text */
+  --muted:            #a6b0cf;               /* secondary text */
+  --red:              #ff4d6d;               /* heart pink/red */
+  --red-dim:          rgba(255,77,109,.15);
+  --accent:           #6ea8ff;               /* focus/interactive */
+  --shadow:           0 10px 30px rgba(0,0,0,.35);
+  --radius-card:      18px;
+  --radius-pill:      12px;
+
+  /* iOS-y motion */
+  --dur-fast:         .12s;
+  --dur-med:          .22s;
+  --easing:           cubic-bezier(.2,.7,.2,1);
 }
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  background:#fff;   /* plain white background */
-  color:#111;        /* switch text color to dark for contrast */
+
+/* Auto dark/light: switches to light UI if system is light */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:         #f7f8fb;
+    --bg-grad-a:  #f7f8fb;
+    --bg-grad-b:  #ecf0ff;
+    --panel:      rgba(255,255,255,0.65);
+    --panel-solid:#ffffff;
+    --ring:       rgba(17,24,39,0.10);
+    --ink:        #0e1220;
+    --muted:      #5a6277;
+    --red:        #ff375f;
+    --red-dim:    rgba(255,55,95,.15);
+    --accent:     #2563eb;
+    --shadow:     0 8px 24px rgba(8,15,40,.12);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  color: var(--ink);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
   -webkit-font-smoothing: antialiased;
-}
-.container{max-width:1100px;margin:0 auto;padding:20px 16px}
-.topbar{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-h1{margin:0;font-size:clamp(22px,3vw,30px);font-weight:700;letter-spacing:.3px}
-.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.control{display:flex;flex-direction:column;gap:6px}
-.control span{font-size:12px;color:var(--muted)}
-input[type="date"], select{
-  background:var(--panel);color:var(--ink);border:1px solid var(--ring);
-  padding:10px 12px;border-radius:10px;outline:none;min-width:160px;
-}
-.btn{
-  background:#1f2937;color:var(--ink);border:1px solid var(--ring);
-  padding:10px 14px;border-radius:10px;cursor:pointer;transition:background .2s,border-color .2s
-}
-.btn:hover{background:#273245;border-color:#2b3754}
-.btn.ghost{background:transparent}
-.card{
-  background:var(--panel);border:1px solid var(--ring);
-  border-radius:16px;padding:16px;margin-top:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.35);
-}
-.overall{display:grid;grid-template-columns:160px 1fr;gap:16px;align-items:center}
-.big-heart{width:140px;height:130px;display:grid;place-items:center}
-.heart-outline{fill:none;stroke:#2a334f;stroke-width:4}
-.heart-fill{fill:var(--red);opacity:.9}
-.meter-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.meter-top span:first-child{color:var(--muted);font-size:13px}
-#pctLabel{font-weight:700}
-progress{width:100%;height:14px;border-radius:8px;overflow:hidden}
-progress::-webkit-progress-bar{background:#0c1222}
-progress::-webkit-progress-value{background:linear-gradient(90deg,var(--red),#f87171)}
-progress::-moz-progress-bar{background:linear-gradient(90deg,var(--red),#f87171)}
-.summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-.summary .pill {
-  background:#ffffff;
-  border:1px solid var(--ring);
-  color:var(--muted);
-}
-.legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.legend-item{display:flex;align-items:center;gap:8px}
-.dot{width:10px;height:10px;border-radius:50%;background:var(--red)}
-.muted{color:var(--muted);font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
-.cell {
-  background:#ffffff;            /* pure white */
-  border:1px solid var(--ring);
-  border-radius:16px;
-  box-shadow:0 1px 3px rgba(0,0,0,.08);
-}
-.date{font-size:12px;color:var(--muted);letter-spacing:.2px}
-.hearts{display:flex;gap:8px}
-.heart{
-  width:28px;height:28px;border-radius:50%;
-  border:2px solid var(--red);
-  display:grid;place-items:center;cursor:pointer;user-select:none;
-  transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
-  background:transparent; box-shadow: inset 0 0 0 0 var(--red-dim);
-}
-.heart.on{
-  background:var(--red);
-  box-shadow: inset 0 0 0 999px rgba(255,255,255,.06);
-}
-.heart:active{transform:scale(.95)}
-.heart:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.foot{padding-bottom:40px}
-@media (max-width:720px){
-  .overall{grid-template-columns:1fr;gap:12px}
-  .big-heart{margin:0 auto}
-}
-/* Buddy hearts (Pokémon GO style) */
-.buddy{display:flex;gap:10px;align-items:center;margin-top:10px}
-.buddy-heart{
-  --pct: 0;                 /* 0..100 for partial heart */
-  --ring-bg:#2a334f;        /* unfilled ring color */
-  --ring-fill:var(--red);   /* filled ring color */
-  width:42px;height:42px;border-radius:50%;position:relative;isolation:isolate;
-}
-/* outer ring with partial fill via conic-gradient */
-.buddy-heart::before{
-  content:"";position:absolute;inset:0;border-radius:50%;
   background:
-    conic-gradient(var(--ring-fill) calc(var(--pct)*1%), var(--ring-bg) 0);
+    radial-gradient(1200px 800px at 85% -200px, rgba(110,168,255,.18), transparent 60%),
+    radial-gradient(900px 600px at -200px 60%, rgba(255,77,109,.14), transparent 55%),
+    linear-gradient(180deg, var(--bg-grad-a), var(--bg-grad-b));
 }
-/* inner circle to create ring thickness */
-.buddy-heart::after{
-  content:"";position:absolute;inset:5px;border-radius:50%;
-  background:var(--panel);box-shadow:inset 0 0 0 1px var(--ring);
+
+/* Safe-area friendly layout */
+.container { max-width: 1080px; margin: 0 auto; padding: 20px 16px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+
+.topbar {
+  display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  padding: 8px 0;
 }
-/* the heart glyph in the center */
-.buddy-heart > span{
-  position:absolute;inset:0;display:grid;place-items:center;
-  font-size:18px;line-height:1;z-index:1;color:#f8d6d6;
-  text-shadow:0 1px 0 rgba(0,0,0,.25);
+h1 {
+  margin: 0;
+  font-size: clamp(20px, 3.2vw, 28px);
+  font-weight: 800;
+  letter-spacing: .2px;
+  background: linear-gradient(180deg, #2e354d, #0e1220);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 1px 0 rgba(255,255,255,.06);
 }
-/* fully-filled hearts (100%) */
-.buddy-heart.full{--pct:100}
+
+.controls { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.control { display: flex; flex-direction: column; gap: 8px; }
+.control span { font-size: 12px; color: var(--muted); }
+
+input[type="date"], select {
+  -webkit-appearance: none; appearance: none;
+  background: var(--panel);
+  backdrop-filter: saturate(140%) blur(12px);
+  color: var(--ink);
+  border: 1px solid var(--ring);
+  padding: 12px 14px;
+  border-radius: 14px;
+  min-width: 160px;
+  outline: none;
+  transition: border-color var(--dur-med) var(--easing), transform var(--dur-fast) var(--easing), background var(--dur-med) var(--easing);
+}
+input[type="date"]:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 25%, transparent);
+}
+
+/* Buttons */
+.btn {
+  -webkit-appearance: none; appearance: none;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 25%, transparent), transparent);
+  color: var(--ink);
+  border: 1px solid var(--ring);
+  padding: 12px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--easing), box-shadow var(--dur-med) var(--easing), background var(--dur-med) var(--easing), border-color var(--dur-med) var(--easing);
+  box-shadow: 0 6px 18px rgba(0,0,0,.12), inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.btn:hover { transform: translateY(-1px); border-color: color-mix(in oklab, var(--accent) 40%, var(--ring)); }
+.btn:active { transform: translateY(0); }
+.btn.ghost { background: var(--panel); }
+
+/* Cards */
+.card {
+  background: var(--panel);
+  backdrop-filter: saturate(140%) blur(12px);
+  border: 1px solid var(--ring);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* Overall meter */
+.overall { display: grid; grid-template-columns: 160px 1fr; gap: 16px; align-items: center; }
+.big-heart { width: 140px; height: 130px; display: grid; place-items: center; }
+.heart-outline { fill: none; stroke: color-mix(in oklab, var(--ink) 18%, transparent); stroke-width: 4; }
+.heart-fill { fill: var(--red); opacity: .95; transition: y var(--dur-med) var(--easing), height var(--dur-med) var(--easing); }
+
+.meter-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.meter-top span:first-child { color: var(--muted); font-size: 13px; }
+#pctLabel { font-weight: 800; }
+
+/* iOS-like progress */
+progress { width: 100%; height: 14px; border-radius: 999px; overflow: hidden; background: transparent; -webkit-appearance: none; appearance: none; }
+progress::-webkit-progress-bar {
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.08));
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+progress::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--red), #ff8aa1);
+}
+progress::-moz-progress-bar { background: linear-gradient(90deg, var(--red), #ff8aa1); }
+
+.summary { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.summary .pill {
+  background: color-mix(in oklab, var(--panel-solid) 60%, transparent);
+  border: 1px solid var(--ring);
+  color: var(--muted);
+  border-radius: var(--radius-pill);
+  padding: 6px 10px;
+}
+
+/* Legend */
+.legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+.muted { color: var(--muted); font-size: 12px; }
+
+/* Grid */
+.grid { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 10px; }
+.cell {
+  background: color-mix(in oklab, var(--panel-solid) 70%, transparent);
+  border: 1px solid var(--ring);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  transition: transform var(--dur-fast) var(--easing), box-shadow var(--dur-med) var(--easing);
+}
+.cell:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
+.date { font-size: 12px; color: var(--muted); letter-spacing: .2px; }
+
+/* Heart buttons */
+.hearts { display: flex; gap: 8px; }
+.heart {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--red) 50%, var(--ring));
+  display: grid; place-items: center;
+  cursor: pointer; user-select: none;
+  background:
+    radial-gradient(18px 18px at 50% 45%, color-mix(in oklab, var(--red) 15%, transparent), transparent 60%),
+    var(--panel);
+  box-shadow:
+    inset 0 0 0 999px var(--red-dim),
+    0 2px 8px rgba(0,0,0,.18);
+  transition:
+    transform var(--dur-fast) var(--easing),
+    box-shadow var(--dur-med) var(--easing),
+    background var(--dur-med) var(--easing),
+    border-color var(--dur-med) var(--easing),
+    filter var(--dur-med) var(--easing);
+  position: relative;
+}
+.heart::before {
+  content: "❤";
+  font-size: 16px;
+  line-height: 1;
+  color: color-mix(in oklab, var(--red) 70%, white);
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.25));
+  transition: transform var(--dur-fast) var(--easing), opacity var(--dur-med) var(--easing);
+  opacity: .9;
+}
+.heart.on {
+  background:
+    radial-gradient(22px 22px at 50% 40%, rgba(255,255,255,.18), transparent 60%),
+    linear-gradient(180deg, color-mix(in oklab, var(--red) 85%, #fff), var(--red));
+  border-color: color-mix(in oklab, var(--red) 80%, var(--ring));
+  box-shadow:
+    0 8px 24px rgba(255,77,109,.35),
+    inset 0 0 0 1px rgba(255,255,255,.18);
+}
+.heart:active { transform: scale(.95); }
+.heart:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Footer */
+.foot { padding-bottom: 40px; }
+
+/* Responsive */
+@media (max-width: 720px) {
+  .overall { grid-template-columns: 1fr; gap: 12px; }
+  .big-heart { margin: 0 auto; }
+  .grid { gap: 8px; }
+}
+
+/* Buddy hearts (Pokémon GO style) */
+.buddy { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+.buddy-heart {
+  --pct: 0;                 /* 0..100 for partial heart */
+  --ring-bg: color-mix(in oklab, var(--ink) 14%, transparent);
+  --ring-fill: var(--red);
+  width: 44px; height: 44px; border-radius: 50%; position: relative; isolation: isolate;
+  transition: transform var(--dur-fast) var(--easing), box-shadow var(--dur-med) var(--easing);
+}
+.buddy-heart::before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(var(--ring-fill) calc(var(--pct)*1%), var(--ring-bg) 0);
+}
+.buddy-heart::after {
+  content: ""; position: absolute; inset: 5px; border-radius: 50%;
+  background: color-mix(in oklab, var(--panel-solid) 70%, transparent);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+.buddy-heart > span {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 18px; line-height: 1; z-index: 1; color: #ffdbe3;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+}
+.buddy-heart.full { --pct: 100; }
+.buddy-heart:hover { transform: translateY(-1px); }
+
+/* Motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
