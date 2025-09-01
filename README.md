@@ -19,7 +19,7 @@ A minimal fitness tracker **inspired by Pokémon GO hearts**. Track 3 daily acti
 1. Set a **start date** and choose **8–16 weeks**.
 2. Tap hearts each day to log your actions.
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 index.html    # UI structure
@@ -27,10 +27,6 @@ style.css     # Styling
 script.js     # Core logic & localStorage saving
 ```
 
-## 🔒 Data
+## Data
 
 All progress is stored locally (`localStorage`). Use **Clear All** to reset.
-
-## 📜 License
-
-MIT — free to use, share, and modify.
