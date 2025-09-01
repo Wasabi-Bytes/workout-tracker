@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Fitness Hearts — 12-Week Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="description" content="Minimal fitness tracker with daily hearts and an overall heart meter. Tracks 3 daily actions and saves progress locally." />
+</head>
+<body>
+  <header class="container">
+    <div class="topbar">
+      <h1>Fitness Hearts</h1>
+      <div class="controls">
+        <label class="control">
+          <span>Start</span>
+          <input type="date" id="startDate" />
+        </label>
+        <label class="control">
+          <span>Weeks</span>
+          <select id="weeks">
+            <option value="8">8</option>
+            <option value="10">10</option>
+            <option value="12" selected>12</option>
+            <option value="16">16</option>
+          </select>
+        </label>
+        <button id="apply" type="button" class="btn">Build</button>
+        <button id="resetToday" type="button" class="btn ghost">Reset Today</button>
+        <button id="clearAll" type="button" class="btn ghost">Clear All</button>
+      </div>
+    </div>
+
+    <!-- Overall heart meter -->
+    <section class="overall card">
+      <div class="overall-left">
+        <div class="big-heart" aria-label="Overall progress">
+          <svg viewBox="0 0 120 110" role="img" aria-hidden="true">
+            <!-- outline -->
+            <path
+              d="M60 102C60 102 14 74 8 45C4 27 17 12 34 12C45 12 52 18 60 27C68 18 75 12 86 12C103 12 116 27 112 45C106 74 60 102 60 102Z"
+              class="heart-outline"
+            />
+            <!-- clip for fill -->
+            <defs>
+              <clipPath id="heart-clip">
+                <path d="M60 102C60 102 14 74 8 45C4 27 17 12 34 12C45 12 52 18 60 27C68 18 75 12 86 12C103 12 116 27 112 45C106 74 60 102 60 102Z"/>
+              </clipPath>
+            </defs>
+            <!-- fill (height set by JS) -->
+            <rect x="0" y="110" width="120" height="110" id="heartFill" clip-path="url(#heart-clip)" class="heart-fill"/>
+          </svg>
+        </div>
+      </div>
+      <div class="overall-right">
+        <div class="meter">
+          <div class="meter-top">
+            <span>Total Hearts</span>
+            <span id="pctLabel">0%</span>
+          </div>
+          <progress id="progress" value="0" max="100"></progress>
+          <div id="summary" class="summary"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="legend card">
+      <div class="legend-item"><div class="dot"></div><div>Action 1</div></div>
+      <div class="legend-item"><div class="dot"></div><div>Action 2</div></div>
+      <div class="legend-item"><div class="dot"></div><div>Action 3</div></div>
+      <div class="muted">Rename in UI to match your routine (e.g., 10k steps • Incline pushups • Core).</div>
+    </section>
+  </header>
+
+  <main class="container">
+    <section id="grid" class="grid card" aria-live="polite"></section>
+  </main>
+
+  <footer class="container foot">
+    <div class="muted">Progress saves in your browser (localStorage).</div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
