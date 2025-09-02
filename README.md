@@ -30,3 +30,4 @@ script.js     # Core logic & localStorage saving
 ## Data
 
 All progress is stored locally (`localStorage`). Use **Clear All** to reset.
+On mobile, progress **will not be saved in private/incognito browsing mode**.
