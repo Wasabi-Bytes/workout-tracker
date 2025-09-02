@@ -253,3 +253,68 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--red), #ff
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+/* ===== Mobile polish (no functionality changes) ===== */
+
+/* Sticky top bar so controls are always reachable */
+.topbar {
+  position: sticky;
+  top: env(safe-area-inset-top);
+  z-index: 20;
+  background: var(--panel);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12);
+}
+
+/* Make summary chips wrap nicely and scroll if needed */
+.summary { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+.summary .pill { white-space: nowrap; }
+
+/* Bigger tap targets on small screens */
+@media (max-width: 640px) {
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+  .control { min-width: 0; }
+  .control span { font-size: 11px; }
+
+  input[type="date"], select, .btn {
+    width: 100%;
+    padding: 14px 16px;            /* larger tap target */
+    border-radius: 14px;
+  }
+
+  /* Put action buttons on their own row */
+  #apply { grid-column: span 2; }
+  #resetToday, #clearAll { grid-column: span 1; }
+}
+
+/* Grid becomes 3 columns on phones, 2 columns on very narrow phones */
+@media (max-width: 640px) {
+  .grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+}
+@media (max-width: 400px) {
+  .grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+}
+
+/* Slightly larger hearts for thumbs */
+@media (max-width: 640px) {
+  .heart { width: 40px; height: 40px; }
+  .heart::before { font-size: 18px; }
+}
+
+/* Make cards a bit denser on phones */
+@media (max-width: 640px) {
+  .card { padding: 12px; }
+  .cell { padding: 10px; }
+  .date { font-size: 11px; }
+}
+
+/* Buddy hearts scale down a touch to fit */
+@media (max-width: 640px) {
+  .buddy-heart { width: 40px; height: 40px; }
+}
