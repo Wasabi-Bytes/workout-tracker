@@ -116,9 +116,9 @@
     pctLabel.textContent = `${pct}%`;
     summaryEl.innerHTML = `
       <span class="pill">Checks: <strong>${totalChecks}</strong> / ${totalPossible} (${pct}%)</span>
-      <span class="pill">Action 1 days: <strong>${aDays}</strong></span>
-      <span class="pill">Action 2 days: <strong>${bDays}</strong></span>
-      <span class="pill">Action 3 days: <strong>${cDays}</strong></span>
+      <span class="pill">10K+ Steps days: <strong>${aDays}</strong></span>
+      <span class="pill">Morning Workout days: <strong>${bDays}</strong></span>
+      <span class="pill">Afternoon Workout days: <strong>${cDays}</strong></span>
       <span class="pill">Perfect days: <strong>${perfect}</strong></span>
       <span class="pill">Best perfect streak: <strong>${bestStreak}</strong></span>
     `;
@@ -293,9 +293,9 @@
     pctLabel.textContent = `${pct}%`;
     summaryEl.innerHTML = `
       <span class="pill">Checks: <strong>${totalChecks}</strong> / ${totalPossible} (${pct}%)</span>
-      <span class="pill">Action 1 days: <strong>${aDays}</strong></span>
-      <span class="pill">Action 2 days: <strong>${bDays}</strong></span>
-      <span class="pill">Action 3 days: <strong>${cDays}</strong></span>
+      <span class="pill">10K+ Steps days: <strong>${aDays}</strong></span>
+      <span class="pill">Morning Workout days: <strong>${bDays}</strong></span>
+      <span class="pill">Afternoon Workout days: <strong>${cDays}</strong></span>
       <span class="pill">Perfect days: <strong>${perfect}</strong></span>
       <span class="pill">Best perfect streak: <strong>${bestStreak}</strong></span>
     `;
