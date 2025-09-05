@@ -1,20 +1,28 @@
+<!--
+  Fitness Hearts – Today & Totals (mobile‑first, dark‑mode safe)
+  This replaces your existing three files with a single drop‑in version.
+  Files below: index.html, style.css, script.js
+-->
+
+<!-- ========================= index.html ========================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Fitness Tracker</title>
+  <title>Fitness Hearts</title>
   <link rel="stylesheet" href="style.css" />
-  <meta name="description" content="Minimal fitness tracker with daily hearts and an overall heart meter. Tracks 3 daily actions and saves progress locally." />
+  <meta name="description" content="Mobile‑first fitness tracker with daily capped hearts and activity totals. Saves locally." />
   <meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)" />
-<meta name="theme-color" content="#f7f8fb" media="(prefers-color-scheme: light)" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#f7f8fb" media="(prefers-color-scheme: light)" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 <body>
   <header class="container">
-    <!-- Buddy Meter (5 big hearts like Pokémon GO) -->
-<div class="buddy" id="buddyMeter" aria-label="Buddy hearts" role="group"></div>
+    <!-- Weekly buddy hearts (days active this week, max 5) -->
+    <div class="buddy" id="buddyMeter" aria-label="Weekly days active" role="group"></div>
+
     <div class="topbar">
       <h1>Fitness Hearts</h1>
       <div class="controls">
@@ -37,23 +45,18 @@
       </div>
     </div>
 
-    <!-- Overall heart meter -->
+    <!-- Overall (program) progress -->
     <section class="overall card">
       <div class="overall-left">
-        <div class="big-heart" aria-label="Overall progress">
+        <!-- Big heart shows TODAY's 0–3 hearts -->
+        <div class="big-heart" aria-label="Today's hearts">
           <svg viewBox="0 0 120 110" role="img" aria-hidden="true">
-            <!-- outline -->
-            <path
-              d="M60 102C60 102 14 74 8 45C4 27 17 12 34 12C45 12 52 18 60 27C68 18 75 12 86 12C103 12 116 27 112 45C106 74 60 102 60 102Z"
-              class="heart-outline"
-            />
-            <!-- clip for fill -->
+            <path d="M60 102C60 102 14 74 8 45C4 27 17 12 34 12C45 12 52 18 60 27C68 18 75 12 86 12C103 12 116 27 112 45C106 74 60 102 60 102Z" class="heart-outline"/>
             <defs>
               <clipPath id="heart-clip">
                 <path d="M60 102C60 102 14 74 8 45C4 27 17 12 34 12C45 12 52 18 60 27C68 18 75 12 86 12C103 12 116 27 112 45C106 74 60 102 60 102Z"/>
               </clipPath>
             </defs>
-            <!-- fill (height set by JS) -->
             <rect x="0" y="110" width="120" height="110" id="heartFill" clip-path="url(#heart-clip)" class="heart-fill"/>
           </svg>
         </div>
@@ -61,7 +64,7 @@
       <div class="overall-right">
         <div class="meter">
           <div class="meter-top">
-            <span>Total Hearts</span>
+            <span>Program Hearts</span>
             <span id="pctLabel">0%</span>
           </div>
           <progress id="progress" value="0" max="100"></progress>
@@ -69,22 +72,261 @@
         </div>
       </div>
     </section>
-
-    <section class="legend card">
-      <div class="legend-item"><div class="dot"></div><div>10K+ Steps</div></div>
-      <div class="legend-item"><div class="dot"></div><div>Morning Workout</div></div>
-      <div class="legend-item"><div class="dot"></div><div>Afternoon Workout</div></div>
-    </section>
   </header>
 
   <main class="container">
-    <section id="grid" class="grid card" aria-live="polite"></section>
+    <!-- Tabs: Today / Totals -->
+    <div class="tabs">
+      <button class="tab active" id="tabToday" type="button">Today</button>
+      <button class="tab" id="tabTotals" type="button">Totals</button>
+    </div>
+
+    <!-- Today card -->
+    <section id="todayCard" class="card today">
+      <div class="today-header">
+        <button id="prevDay" class="chip" aria-label="Previous day">◀︎</button>
+        <input type="date" id="selectedDate" />
+        <button id="nextDay" class="chip" aria-label="Next day">▶︎</button>
+      </div>
+      <div class="today-stats">
+        <span class="pill">Today: <strong id="todayHearts">0</strong> / 3</span>
+        <span class="pill" id="capNote">Daily cap: 3</span>
+      </div>
+      <div id="activities" class="activities"></div>
+      <div class="muted tiny" id="ropeHint">Jump Rope: 2 min per session (change later in code if you want)</div>
+    </section>
+
+    <!-- Totals card -->
+    <section id="totalsCard" class="card totals" hidden>
+      <div class="totals-grid" id="totals"></div>
+    </section>
   </main>
 
   <footer class="container foot">
-    <div class="muted">Progress saves in your browser (localStorage).</div>
+    <div class="muted">Progress saves locally (private to this browser).</div>
   </footer>
 
   <script src="script.js"></script>
 </body>
 </html>
+
+<!-- ========================= style.css ========================= -->
+<style>
+:root { --bg:#0b1020; --bg-grad-a:#0b1020; --bg-grad-b:#141b34; --panel:rgba(255,255,255,.08); --panel-solid:#0f152b; --ring:rgba(255,255,255,.12); --ink:#e5e9f5; --muted:#a6b0cf; --ink-strong:#ffffff; --red:#ff4d6d; --red-dim:rgba(255,77,109,.15); --accent:#6ea8ff; --radius-card:18px; --radius-pill:12px; --shadow:0 10px 30px rgba(0,0,0,.35); --dur-fast:.12s; --dur-med:.22s; --easing:cubic-bezier(.2,.7,.2,1);}
+@media (prefers-color-scheme: light){ :root{ --bg:#f7f8fb; --bg-grad-a:#f7f8fb; --bg-grad-b:#ecf0ff; --panel:rgba(255,255,255,.65); --panel-solid:#fff; --ring:rgba(17,24,39,.1); --ink:#0e1220; --muted:#5a6277; --ink-strong:#0e1220; --red:#ff375f; --red-dim:rgba(255,55,95,.15); --accent:#2563eb; --shadow:0 8px 24px rgba(8,15,40,.12);} }
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;-webkit-font-smoothing:antialiased;background:radial-gradient(1200px 800px at 85% -200px, rgba(110,168,255,.18), transparent 60%),radial-gradient(900px 600px at -200px 60%, rgba(255,77,109,.14), transparent 55%),linear-gradient(180deg, var(--bg-grad-a), var(--bg-grad-b));}
+.container{max-width:1080px;margin:0 auto;padding:20px 16px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));}
+.topbar{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 0;position:sticky;top:env(safe-area-inset-top);z-index:20;background:var(--panel);backdrop-filter:saturate(140%) blur(10px);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,.12);} h1{margin:0;font-size:clamp(20px,3.2vw,28px);font-weight:800;letter-spacing:.2px;background:linear-gradient(180deg,#2e354d,#0e1220);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 1px 0 rgba(255,255,255,.06);}
+.controls{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap} .control{display:flex;flex-direction:column;gap:8px} .control span{font-size:12px;color:var(--muted)}
+input[type=date],select{appearance:none;background:var(--panel);backdrop-filter:saturate(140%) blur(12px);color:var(--ink-strong);border:1px solid var(--ring);padding:12px 14px;border-radius:14px;min-width:160px;outline:none;transition:border-color var(--dur-med) var(--easing),background var(--dur-med) var(--easing)} input[type=date]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in oklab, var(--accent) 25%, transparent)}
+.btn{appearance:none;background:linear-gradient(180deg, color-mix(in oklab, var(--accent) 25%, transparent), transparent);color:var(--ink-strong);border:1px solid var(--ring);padding:12px 16px;border-radius:14px;cursor:pointer;transition:transform var(--dur-fast) var(--easing), box-shadow var(--dur-med) var(--easing), background var(--dur-med) var(--easing), border-color var(--dur-med) var(--easing);box-shadow:0 6px 18px rgba(0,0,0,.12), inset 0 0 0 1px rgba(255,255,255,.04);} .btn:hover{transform:translateY(-1px)} .btn:active{transform:translateY(0)} .btn.ghost{background:var(--panel)}
+.card{background:var(--panel);backdrop-filter:saturate(140%) blur(12px);border:1px solid var(--ring);border-radius:var(--radius-card);padding:16px;margin-top:16px;box-shadow:var(--shadow)}
+.overall{display:grid;grid-template-columns:160px 1fr;gap:16px;align-items:center} .big-heart{width:140px;height:130px;display:grid;place-items:center}
+.heart-outline{fill:none;stroke:color-mix(in oklab, var(--ink) 18%, transparent);stroke-width:4} .heart-fill{fill:var(--red);opacity:.95;transition:y var(--dur-med) var(--easing),height var(--dur-med) var(--easing)}
+.meter-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px} .meter-top span:first-child{color:var(--muted);font-size:13px} #pctLabel{font-weight:800}
+progress{width:100%;height:14px;border-radius:999px;overflow:hidden;background:transparent;appearance:none} progress::-webkit-progress-bar{background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.08));border-radius:999px;box-shadow:inset 0 0 0 1px var(--ring)} progress::-webkit-progress-value{background:linear-gradient(90deg, var(--red), #ff8aa1)} progress::-moz-progress-bar{background:linear-gradient(90deg, var(--red), #ff8aa1)}
+.summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px} .summary .pill{background:color-mix(in oklab, var(--panel-solid) 60%, transparent);border:1px solid var(--ring);color:var(--muted);border-radius:var(--radius-pill);padding:6px 10px;white-space:nowrap}
+.muted{color:var(--muted);font-size:12px} .tiny{font-size:11px;margin-top:8px}
+.tabs{display:flex;gap:8px;margin-top:16px} .tab{flex:1;appearance:none;background:var(--panel);border:1px solid var(--ring);border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--ink-strong)} .tab.active{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent)}
+.today-header{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:8px} .chip{appearance:none;background:var(--panel);border:1px solid var(--ring);border-radius:999px;padding:8px 12px;color:var(--ink-strong)}
+.today-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.activities{display:grid;gap:10px}
+.activity{display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--ring);border-radius:14px;padding:12px;background:color-mix(in oklab, var(--panel-solid) 70%, transparent)} .activity-left{display:flex;align-items:center;gap:10px}
+.activity .label{font-weight:600} .activity .sub{font-size:12px;color:var(--muted)}
+.hearts{display:flex;gap:8px}
+.heart{width:34px;height:34px;border-radius:50%;border:1px solid color-mix(in oklab, var(--red) 50%, var(--ring));display:grid;place-items:center;cursor:pointer;user-select:none;background:radial-gradient(18px 18px at 50% 45%, color-mix(in oklab, var(--red) 15%, transparent), transparent 60%), var(--panel);box-shadow:inset 0 0 0 999px var(--red-dim), 0 2px 8px rgba(0,0,0,.18);transition:transform var(--dur-fast) var(--easing), box-shadow var(--dur-med) var(--easing), background var(--dur-med) var(--easing), border-color var(--dur-med) var(--easing)}
+.heart::before{content:"❤";font-size:16px;line-height:1;color:color-mix(in oklab, var(--red) 70%, white);filter:drop-shadow(0 1px 0 rgba(0,0,0,.25));opacity:.9}
+.heart.on{background:radial-gradient(22px 22px at 50% 40%, rgba(255,255,255,.18), transparent 60%), linear-gradient(180deg, color-mix(in oklab, var(--red) 85%, #fff), var(--red));border-color:color-mix(in oklab, var(--red) 80%, var(--ring));box-shadow:0 8px 24px rgba(255,77,109,.35), inset 0 0 0 1px rgba(255,255,255,.18)}
+.heart.muted::before{opacity:.6} .heart:active{transform:scale(.95)} .heart:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.totals-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(180px,1fr));gap:10px}
+.total-row{border:1px solid var(--ring);border-radius:12px;padding:12px;background:color-mix(in oklab, var(--panel-solid) 70%, transparent)} .total-row .big{font-size:18px;font-weight:800}
+.buddy{display:flex;gap:10px;align-items:center;margin-top:10px}
+.buddy-heart{--pct:0;--ring-bg:color-mix(in oklab, var(--ink) 14%, transparent);--ring-fill:var(--red);width:44px;height:44px;border-radius:50%;position:relative}
+.buddy-heart::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--ring-fill) calc(var(--pct)*1%), var(--ring-bg) 0)}
+.buddy-heart::after{content:"";position:absolute;inset:5px;border-radius:50%;background:color-mix(in oklab, var(--panel-solid) 70%, transparent);box-shadow:inset 0 0 0 1px var(--ring)}
+.buddy-heart>span{position:absolute;inset:0;display:grid;place-items:center;font-size:18px;line-height:1;z-index:1;color:#ffdbe3;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.buddy-heart.full{--pct:100}
+@media (max-width:720px){ .overall{grid-template-columns:1fr;gap:12px} .big-heart{margin:0 auto} }
+@media (max-width:640px){ .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%} #apply{grid-column:span 2} #resetToday,#clearAll{grid-column:span 1} .card{padding:12px} .heart{width:40px;height:40px} }
+</style>
+
+<!-- ========================= script.js ========================= -->
+<script>
+(() => {
+  const KEY = "fitness-hearts-v3";
+  const PROGRAM_DAILY_CAP = 3;
+  const ROPE_MIN_PER_SESSION = 2; // each jump-rope session = 2 minutes
+
+  // DOM
+  const startInput = document.getElementById("startDate");
+  const weeksSel   = document.getElementById("weeks");
+  const applyBtn   = document.getElementById("apply");
+  const resetBtn   = document.getElementById("resetToday");
+  const clearBtn   = document.getElementById("clearAll");
+
+  const progressEl = document.getElementById("progress");
+  const pctLabel   = document.getElementById("pctLabel");
+  const summaryEl  = document.getElementById("summary");
+  const heartFill  = document.getElementById("heartFill");
+  const buddyMeter = document.getElementById("buddyMeter");
+
+  const tabToday   = document.getElementById("tabToday");
+  const tabTotals  = document.getElementById("tabTotals");
+  const todayCard  = document.getElementById("todayCard");
+  const totalsCard = document.getElementById("totalsCard");
+
+  const selectedDateInput = document.getElementById("selectedDate");
+  const prevDayBtn = document.getElementById("prevDay");
+  const nextDayBtn = document.getElementById("nextDay");
+  const activitiesWrap = document.getElementById("activities");
+  const todayHeartsEl = document.getElementById("todayHearts");
+  const capNoteEl = document.getElementById("capNote");
+
+  const ORDER = ["steps10k","japaneseInterval","abs","pushups","jumpRope","deadHang"];
+  const META = {
+    steps10k:         { label: "10k+ Steps (brisk)",       cap: 1 },
+    japaneseInterval: { label: "Japanese Interval Walking", cap: 1 },
+    abs:              { label: "Ab Exercises",              cap: 2 },
+    pushups:          { label: "Pushups",                   cap: 2 },
+    jumpRope:         { label: `Jump Rope Sessions`,         cap: 3 },
+    deadHang:         { label: "Deadhanging",               cap: 1 },
+  };
+
+  // Utils
+  const pad = n => String(n).padStart(2,"0");
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const validDateStr = s => /^\d{4}-\d{2}-\d{2}$/.test(s);
+  const todayISO = () => fmt(new Date());
+  const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate()+n); return fmt(d); };
+  const startOfWeekISO = (iso, weekStartsOn=1) => { const d=new Date(iso+"T00:00:00"); const day=d.getDay(); const diff=(day-weekStartsOn+7)%7; d.setDate(d.getDate()-diff); return fmt(d); };
+
+  // Storage
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+  const save = (data) => localStorage.setItem(KEY, JSON.stringify(data));
+
+  const ensureStartDate = () => { let v = startInput.value; if(!validDateStr(v)){ v = todayISO(); startInput.value = v; } return v; };
+
+  function emptyDay(){ return { steps10k:0, japaneseInterval:0, abs:0, pushups:0, jumpRope:0, deadHang:0, notes:"" }; }
+  function getDayRecord(data, dateISO){ if(!data.days) data.days={}; if(!data.days[dateISO]) data.days[dateISO]=emptyDay(); return data.days[dateISO]; }
+  const dayTotal = rec => Math.min(PROGRAM_DAILY_CAP, rec.steps10k + rec.japaneseInterval + rec.abs + rec.pushups + rec.jumpRope + rec.deadHang);
+
+  function renderBuddyHearts(data, selectedISO){
+    buddyMeter.innerHTML = "";
+    const startWeek = startOfWeekISO(selectedISO);
+    let active = 0;
+    for(let i=0;i<7;i++){
+      const iso = addDays(startWeek, i);
+      const rec = data.days?.[iso];
+      if(rec && dayTotal(rec) > 0) active++;
+    }
+    const hearts = Math.min(5, active);
+    for(let i=0;i<5;i++){
+      const el = document.createElement("div"); el.className = "buddy-heart"; const glyph=document.createElement("span"); glyph.textContent = "❤"; el.appendChild(glyph);
+      if(i < hearts) el.classList.add("full"); else el.style.setProperty("--pct","0");
+      buddyMeter.appendChild(el);
+    }
+  }
+
+  function renderActivities(data, selectedISO){
+    activitiesWrap.innerHTML = "";
+    const rec = getDayRecord(data, selectedISO);
+    const currentSum = rec.steps10k + rec.japaneseInterval + rec.abs + rec.pushups + rec.jumpRope + rec.deadHang;
+    const capped = Math.min(currentSum, PROGRAM_DAILY_CAP);
+    todayHeartsEl.textContent = String(capped);
+    capNoteEl.textContent = currentSum > PROGRAM_DAILY_CAP ? `Daily cap reached (counting 3). Extra hearts logged for totals.` : `Daily cap: ${PROGRAM_DAILY_CAP}`;
+
+    ORDER.forEach(key => {
+      const row = document.createElement("div"); row.className = "activity";
+      const left = document.createElement("div"); left.className = "activity-left";
+      const label = document.createElement("div"); label.className = "label"; label.textContent = META[key].label; left.appendChild(label);
+      if(key === 'jumpRope'){ const sub=document.createElement('div'); sub.className='sub'; sub.textContent='(2 min / session)'; left.appendChild(sub);}
+      const hearts = document.createElement("div"); hearts.className = "hearts";
+      const count = rec[key];
+      for(let i=0;i<META[key].cap;i++){
+        const b = document.createElement("button"); b.type="button"; b.className = "heart" + (i < count ? " on" : "");
+        b.addEventListener("click", () => {
+          const latest = load(); const r = getDayRecord(latest, selectedISO); const cur = r[key];
+          r[key] = (i < cur) ? i : (i+1); // click toggles to i or i+1
+          save(latest); build();
+        });
+        hearts.appendChild(b);
+      }
+      row.appendChild(left); row.appendChild(hearts); activitiesWrap.appendChild(row);
+    });
+
+    // Big heart shows TODAY fill (0..3 => 0..100%)
+    const svgH = 110; const percent = (capped/PROGRAM_DAILY_CAP)*100; const fillH = (percent/100)*svgH;
+    heartFill.setAttribute("y", svgH - fillH); heartFill.setAttribute("height", fillH);
+  }
+
+  function renderProgram(data){
+    const startStr = ensureStartDate(); const weeks = Number(weeksSel.value)||12; const daysTotal = weeks*7;
+    let totalHearts = 0; let daysActive = 0;
+    const actTotals = { steps10k:0,japaneseInterval:0,abs:0,pushups:0,jumpRope:0,deadHang:0 };
+
+    for(let i=0;i<daysTotal;i++){
+      const iso = addDays(startStr, i);
+      const rec = data.days?.[iso]; if(!rec) continue;
+      const capped = dayTotal(rec); totalHearts += capped; if(capped>0) daysActive++;
+      actTotals.steps10k += rec.steps10k; actTotals.japaneseInterval += rec.japaneseInterval; actTotals.abs += rec.abs; actTotals.pushups += rec.pushups; actTotals.jumpRope += rec.jumpRope; actTotals.deadHang += rec.deadHang;
+    }
+
+    const maxHearts = daysTotal * PROGRAM_DAILY_CAP; const pct = maxHearts ? Math.round((totalHearts/maxHearts)*100) : 0;
+    progressEl.value = pct; pctLabel.textContent = `${pct}%`;
+
+    summaryEl.innerHTML = `
+      <span class="pill">Program: <strong>${totalHearts}</strong> / ${maxHearts}</span>
+      <span class="pill">Total Days Active: <strong>${daysActive}</strong></span>
+    `;
+
+    const totalsEl = document.getElementById("totals"); totalsEl.innerHTML = "";
+    const addRow = (title, value, sub="") => { const r=document.createElement("div"); r.className="total-row"; r.innerHTML = `<div>${title}</div><div class=\"big\">${value}</div>${sub?`<div class=\\"sub\\">${sub}</div>`:""}`; totalsEl.appendChild(r); };
+
+    addRow("Program Hearts", `${totalHearts} / ${maxHearts}`);
+    addRow("Total Days Active", `${daysActive}`);
+    addRow("10k+ Steps", `${actTotals.steps10k}`);
+    addRow("Japanese Interval Walking", `${actTotals.japaneseInterval}`);
+    addRow("Ab Exercises", `${actTotals.abs}`);
+    addRow("Pushups", `${actTotals.pushups}`);
+    addRow("Jump Rope Sessions", `${actTotals.jumpRope}`, `${actTotals.jumpRope * ROPE_MIN_PER_SESSION} min total`);
+    addRow("Deadhanging", `${actTotals.deadHang}`);
+  }
+
+  function renderAll(){
+    const data = load();
+    if(!data._meta){ data._meta = { programStartISO: todayISO(), programWeeks: 12, ropeMinutesPerSession: ROPE_MIN_PER_SESSION }; }
+    if(!data.days) data.days = {};
+    startInput.value = data._meta.programStartISO || todayISO();
+    weeksSel.value = String(data._meta.programWeeks || 12);
+
+    const sel = data.lastSelectedDate && validDateStr(data.lastSelectedDate) ? data.lastSelectedDate : todayISO();
+    selectedDateInput.value = sel;
+
+    renderActivities(data, sel);
+    renderProgram(data);
+    renderBuddyHearts(data, sel);
+  }
+
+  function build(){
+    const data = load();
+    const startStr = ensureStartDate();
+    const weeks = Number(weeksSel.value)||12;
+    data._meta = { programStartISO: startStr, programWeeks: weeks, ropeMinutesPerSession: ROPE_MIN_PER_SESSION };
+    save(data); renderAll();
+  }
+
+  function setTab(which){ if(which==='today'){ tabToday.classList.add('active'); tabTotals.classList.remove('active'); todayCard.hidden=false; totalsCard.hidden=true; } else { tabTotals.classList.add('active'); tabToday.classList.remove('active'); totalsCard.hidden=false; todayCard.hidden=true; } }
+
+  // Init + events
+  (function init(){ build(); })();
+  applyBtn.addEventListener("click", build);
+  resetBtn.addEventListener("click", () => { const data=load(); const iso=selectedDateInput.value||todayISO(); data.days[iso]=emptyDay(); save(data); renderAll(); });
+  clearBtn.addEventListener("click", () => { if(confirm("Clear all saved progress?")){ localStorage.removeItem(KEY); location.reload(); } });
+  tabToday.addEventListener('click', () => setTab('today'));
+  tabTotals.addEventListener('click', () => setTab('totals'));
+  selectedDateInput.addEventListener('change', () => { const data=load(); const iso=selectedDateInput.value; if(validDateStr(iso)){ data.lastSelectedDate=iso; save(data); renderAll(); } });
+  prevDayBtn.addEventListener('click', () => { const data=load(); const iso=selectedDateInput.value; const p=addDays(iso,-1); selectedDateInput.value=p; data.lastSelectedDate=p; save(data); renderAll(); });
+  nextDayBtn.addEventListener('click', () => { const data=load(); const iso=selectedDateInput.value; const n=addDays(iso,1); selectedDateInput.value=n; data.lastSelectedDate=n; save(data); renderAll(); });
+})();
+</script>
