@@ -18,10 +18,11 @@ Pokémon GO–style hearts. Earn up to **3/day**. Program length **8–16 weeks*
 Today View
 
 
-## Use<img width="1070" height="518" alt="screenshots:desktop-totals" src="https://github.com/user-attachments/assets/7aeda5b2-5197-40d8-bbe4-8ef5637bd793" />
+<img width="1070" height="518" alt="screenshots:desktop-totals" src="https://github.com/user-attachments/assets/7aeda5b2-5197-40d8-bbe4-8ef5637bd793" />
 
 Total View
 
+## Use
 1. Set start date + weeks (8–16). Optionally enter **Weight (lb)**.
 2. Log daily on **Today**. Review rollups on **Totals**.
 
