@@ -13,7 +13,7 @@ Pokémon GO–style hearts. Earn up to **3/day**. Program length **8–16 weeks*
 
 ## Screenshots
 
-<img width="1083" height="699" alt="screenshots:mobile-today" src="https://github.com/user-attachments/assets/f24c619d-1095-48a8-bbc6-1a73f1796a1d" />
+<img width="1081" height="616" alt="Screenshot 2025-09-05 at 9 25 53 PM" src="https://github.com/user-attachments/assets/b6446fa5-0d9c-4dea-b6c1-a1ca4d6fc641" />
 
 Today View
 
