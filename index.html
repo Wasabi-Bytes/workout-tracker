@@ -171,7 +171,7 @@
       steps10k:         { label: "10k+ Steps (brisk)",        cap: 1 },
       japaneseInterval: { label: "Japanese Interval Walking", cap: 1 },
       abs:              { label: "Ab Exercises",              cap: 2 },
-      pushups:          { label: "Pushups",                   cap: 2 },
+      pushups:          { label: "Pushup Sessions",                   cap: 2 },
       jumpRope:         { label: "Jump Rope Sessions",        cap: 5 },
       deadHang:         { label: "Deadhanging",               cap: 1 },
     };
@@ -289,7 +289,7 @@
       addRow("10k+ Steps", `${totals.steps10k}`);
       addRow("Japanese Interval Walking", `${totals.japaneseInterval}`);
       addRow("Ab Exercises", `${totals.abs}`);
-      addRow("Pushups", `${totals.pushups}`);
+      addRow("Pushup Sessions", `${totals.pushups}`);
       addRow("Jump Rope Sessions", `${totals.jumpRope}`, `${totals.jumpRope * ROPE_MIN_PER_SESSION} min total`);
       addRow("Deadhanging", `${totals.deadHang}`);
     }
