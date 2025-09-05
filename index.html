@@ -19,7 +19,8 @@
     .topbar{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:8px 0;position:sticky;top:env(safe-area-inset-top);z-index:20;background:var(--panel);backdrop-filter:saturate(140%) blur(10px);border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,.12);}
     h1{margin:0;font-size:clamp(20px,3.2vw,28px);font-weight:800;letter-spacing:.2px;background:linear-gradient(180deg,#2e354d,#0e1220);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 1px 0 rgba(255,255,255,.06);}
     .controls{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap} .control{display:flex;flex-direction:column;gap:8px} .control span{font-size:12px;color:var(--muted)}
-    input[type=date],select{appearance:none;background:var(--panel);backdrop-filter:saturate(140%) blur(12px);color:var(--ink-strong);border:1px solid var(--ring);padding:12px 14px;border-radius:14px;min-width:160px;outline:none;transition:border-color var(--dur-med) var(--easing),background var(--dur-med) var(--easing)} input[type=date]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in oklab, var(--accent) 25%, transparent)}
+    input[type=date],input[type=number],select{appearance:none;background:var(--panel);backdrop-filter:saturate(140%) blur(12px);color:var(--ink-strong);border:1px solid var(--ring);padding:12px 14px;border-radius:14px;min-width:160px;outline:none;transition:border-color var(--dur-med) var(--easing),background var(--dur-med) var(--easing)} input[type=date]:focus,input[type=number]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in oklab, var(--accent) 25%, transparent)}
+    #weight{min-width:120px}
     .btn{appearance:none;background:linear-gradient(180deg, color-mix(in oklab, var(--accent) 25%, transparent), transparent);color:var(--ink-strong);border:1px solid var(--ring);padding:12px 16px;border-radius:14px;cursor:pointer;transition:transform var(--dur-fast) var(--easing), box-shadow var(--dur-med) var(--easing), background var(--dur-med) var(--easing), border-color var(--dur-med) var(--easing);box-shadow:0 6px 18px rgba(0,0,0,.12), inset 0 0 0 1px rgba(255,255,255,.04);} .btn:hover{transform:translateY(-1px)} .btn:active{transform:translateY(0)} .btn.ghost{background:var(--panel)}
     .card{background:var(--panel);backdrop-filter:saturate(140%) blur(12px);border:1px solid var(--ring);border-radius:var(--radius-card);padding:16px;margin-top:16px;box-shadow:var(--shadow)}
     .overall{display:grid;grid-template-columns:160px 1fr;gap:16px;align-items:center} .big-heart{width:140px;height:130px;display:grid;place-items:center}
@@ -48,12 +49,16 @@
     .buddy-heart>span{position:absolute;inset:0;display:grid;place-items:center;font-size:18px;line-height:1;z-index:1;color:#ffdbe3;text-shadow:0 1px 0 rgba(0,0,0,.25)}
     .buddy-heart.full{--pct:100}
     @media (max-width:720px){ .overall{grid-template-columns:1fr;gap:12px} .big-heart{margin:0 auto} }
-    @media (max-width:640px){ .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%} #apply{grid-column:span 2} #resetToday,#clearAll{grid-column:span 1} .card{padding:12px} .heart{width:40px;height:40px} }
+    @media (max-width:640px){
+      .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+      #apply{grid-column:span 2} #resetToday,#clearAll{grid-column:span 1}
+      .card{padding:12px} .heart{width:40px;height:40px}
+      .topbar{position:static}
+    }
   </style>
 </head>
 <body>
   <header class="container">
-    <!-- Program progress hearts (fill across entire program, max 3/day) -->
     <div class="buddy" id="buddyMeter" aria-label="Program progress" role="group"></div>
 
     <div class="topbar">
@@ -72,16 +77,18 @@
             <option value="16">16</option>
           </select>
         </label>
+        <label class="control">
+          <span>Weight (lb)</span>
+          <input type="number" id="weight" inputmode="decimal" placeholder="e.g., 170" min="60" max="500" />
+        </label>
         <button id="apply" type="button" class="btn">Build</button>
         <button id="resetToday" type="button" class="btn ghost">Reset Today</button>
         <button id="clearAll" type="button" class="btn ghost">Clear All</button>
       </div>
     </div>
 
-    <!-- Overall (program) progress -->
     <section class="overall card">
       <div class="overall-left">
-        <!-- Big heart shows TODAY's 0–3 hearts -->
         <div class="big-heart" aria-label="Today's hearts">
           <svg viewBox="0 0 120 110" role="img" aria-hidden="true">
             <path d="M60 102C60 102 14 74 8 45C4 27 17 12 34 12C45 12 52 18 60 27C68 18 75 12 86 12C103 12 116 27 112 45C106 74 60 102 60 102Z" class="heart-outline"/>
@@ -138,11 +145,28 @@
   (() => {
     const KEY = "fitness-hearts-v7";
     const PROGRAM_DAILY_CAP = 3;
-    const ROPE_MIN_PER_SESSION = 2; // minutes
+
+    // Updated constants
+    const ROPE_MIN_PER_SESSION = 2;          // minutes
+    const AB_MIN_PER_SESSION = 10;           // minutes (fixed)
+    const PUSHUPS_PER_SESSION = 15;          // reps
+    const DEADHANG_SEC_PER_SESSION = 10;     // seconds
+    const STEPS_PER_MILE = 2000;             // avg
+    const JAPANESE_INTERVAL_STEPS = 1000;    // ~1k steps
+    const MILE_TO_KM = 1.60934;
+
+    // Calorie assumptions
+    const MET_WALK_PER_KM_KG = 0.57;
+    const MET_JUMPROPE = 10;
+    const MET_ABS = 5;
+    const MET_PUSHUPS = 8;
+    const MET_DEADHANG = 1.8;
+    const PUSHUP_TIME_PER_SESSION_MIN = 1;
 
     // DOM
     const startInput = document.getElementById("startDate");
     const weeksSel   = document.getElementById("weeks");
+    const weightInput= document.getElementById("weight");
     const applyBtn   = document.getElementById("apply");
     const resetBtn   = document.getElementById("resetToday");
     const clearBtn   = document.getElementById("clearAll");
@@ -163,27 +187,23 @@
     const nextDayBtn = document.getElementById("nextDay");
     const activitiesWrap = document.getElementById("activities");
     const todayHeartsEl = document.getElementById("todayHearts");
-    const capNoteEl = document.getElementById("capNote");
 
-    // Activities (Jump Rope now 5 sessions)
     const ORDER = ["steps10k","japaneseInterval","abs","pushups","jumpRope","deadHang"];
     const META = {
       steps10k:         { label: "10k+ Steps (brisk)",        cap: 1 },
       japaneseInterval: { label: "Japanese Interval Walking", cap: 1 },
       abs:              { label: "Ab Exercises",              cap: 2 },
-      pushups:          { label: "Pushup Sessions",                   cap: 2 },
+      pushups:          { label: "Pushup Sessions",           cap: 2 },
       jumpRope:         { label: "Jump Rope Sessions",        cap: 5 },
       deadHang:         { label: "Deadhanging",               cap: 1 },
     };
 
-    // Utils
     const pad = n => String(n).padStart(2,"0");
     const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
     const validDateStr = s => /^\d{4}-\d{2}-\d{2}$/.test(s);
     const todayISO = () => fmt(new Date());
     const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate()+n); return fmt(d); };
 
-    // Storage
     const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
     const save = (data) => localStorage.setItem(KEY, JSON.stringify(data));
     const ensureStartDate = () => { let v = startInput.value; if(!validDateStr(v)){ v = todayISO(); startInput.value = v; } return v; };
@@ -191,15 +211,13 @@
     function emptyDay(){ return { steps10k:0, japaneseInterval:0, abs:0, pushups:0, jumpRope:0, deadHang:0, notes:"" }; }
     function getDayRecord(data, dateISO){ if(!data.days) data.days={}; if(!data.days[dateISO]) data.days[dateISO]=emptyDay(); return data.days[dateISO]; }
 
-    // Cardio rule: must have steps OR interval OR all 5 rope sessions for the 3rd heart
     function dayTotal(rec){
       const cardioDone = (rec.steps10k>0) || (rec.japaneseInterval>0) || (rec.jumpRope>=5);
       const raw = rec.steps10k + rec.japaneseInterval + rec.abs + rec.pushups + rec.jumpRope + rec.deadHang;
-      if(!cardioDone) return Math.min(2, raw);            // lock at 2 without cardio
-      return Math.min(PROGRAM_DAILY_CAP, raw);            // otherwise allow up to 3
+      if(!cardioDone) return Math.min(2, raw);
+      return Math.min(PROGRAM_DAILY_CAP, raw);
     }
 
-    // Program progress hearts (5) – fill gradually across the whole program
     function renderBuddyHearts(data){
       buddyMeter.innerHTML = "";
       const startISO = ensureStartDate();
@@ -213,7 +231,7 @@
         if(rec) earned += dayTotal(rec);
       }
       const max = daysTotal * PROGRAM_DAILY_CAP;
-      const heartsValue = max ? (earned / max) * 5 : 0; // 0..5
+      const heartsValue = max ? (earned / max) * 5 : 0;
 
       for(let i=0;i<5;i++){
         const el = document.createElement("div"); el.className = "buddy-heart";
@@ -241,7 +259,7 @@
           const b = document.createElement("button"); b.type="button"; b.className = "heart" + (i < count ? " on" : "");
           b.addEventListener("click", () => {
             const latest = load(); const r = getDayRecord(latest, selectedISO); const cur = r[key];
-            r[key] = (i < cur) ? i : (i+1); // toggle to i or i+1
+            r[key] = (i < cur) ? i : (i+1);
             save(latest); build();
           });
           hearts.appendChild(b);
@@ -249,7 +267,6 @@
         row.appendChild(left); row.appendChild(hearts); activitiesWrap.appendChild(row);
       });
 
-      // Today meter (big heart)
       const capped = dayTotal(rec);
       todayHeartsEl.textContent = String(capped);
 
@@ -277,6 +294,31 @@
         <span class="pill">Total Days Active: <strong>${daysActive}</strong></span>
       `;
 
+      // Derived totals
+      const milesFrom10k = totals.steps10k * (10000 / STEPS_PER_MILE);
+      const milesFromInterval = totals.japaneseInterval * (JAPANESE_INTERVAL_STEPS / STEPS_PER_MILE);
+      const totalMiles = milesFrom10k + milesFromInterval;
+      const totalKm = totalMiles * MILE_TO_KM;
+
+      const absMin = totals.abs * AB_MIN_PER_SESSION;
+      const absH = Math.floor(absMin / 60), absRMin = absMin % 60;
+
+      const ropeMin = totals.jumpRope * ROPE_MIN_PER_SESSION;
+      const totalPushups = totals.pushups * PUSHUPS_PER_SESSION;
+
+      const dhSec = totals.deadHang * DEADHANG_SEC_PER_SESSION;
+      const dhMin = Math.floor(dhSec / 60), dhRSec = dhSec % 60;
+
+      const weightLb = Number(weightInput.value || data._meta?.weightLb || 0);
+      const weightKg = weightLb ? weightLb * 0.45359237 : 0;
+
+      const kcalWalk = weightKg ? (MET_WALK_PER_KM_KG * weightKg * totalKm) : 0;
+      const kcalRope = weightKg ? (MET_JUMPROPE * weightKg * (ropeMin / 60)) : 0;
+      const kcalAbs  = weightKg ? (MET_ABS * weightKg * (absMin / 60)) : 0;
+      const kcalPush = weightKg ? (MET_PUSHUPS * weightKg * (PUSHUP_TIME_PER_SESSION_MIN * totals.pushups / 60)) : 0;
+      const kcalHang = weightKg ? (MET_DEADHANG * weightKg * (dhSec / 3600)) : 0;
+      const kcalTotal = Math.round(kcalWalk + kcalRope + kcalAbs + kcalPush + kcalHang);
+
       const totalsEl = document.getElementById("totals"); totalsEl.innerHTML = "";
       const addRow = (title, value, sub="") => {
         const r=document.createElement("div"); r.className="total-row";
@@ -286,20 +328,44 @@
 
       addRow("Program Hearts", `${totalHearts} / ${maxHearts}`);
       addRow("Total Days Active", `${daysActive}`);
-      addRow("10k+ Steps", `${totals.steps10k}`);
-      addRow("Japanese Interval Walking", `${totals.japaneseInterval}`);
-      addRow("Ab Exercises", `${totals.abs}`);
-      addRow("Pushup Sessions", `${totals.pushups}`);
-      addRow("Jump Rope Sessions", `${totals.jumpRope}`, `${totals.jumpRope * ROPE_MIN_PER_SESSION} min total`);
-      addRow("Deadhanging", `${totals.deadHang}`);
+
+      // Walking distance (no sub-line)
+      addRow("Walking Distance", `${totalMiles.toFixed(1)} mi (${totalKm.toFixed(1)} km)`);
+
+      // Keep session counts visible
+      addRow("10k+ Steps Sessions", `${totals.steps10k}`);
+      addRow("Japanese Interval Sessions", `${totals.japaneseInterval}`);
+
+      // Abs time (no sub-line; 10 min/session)
+      addRow("Ab Exercises Time", `${absH} hr ${absRMin} min`);
+
+      // Pushups (no sub-line)
+      addRow("Pushups", `${totalPushups}`);
+
+      // Jump rope (keep minutes total)
+      addRow("Jump Rope Sessions", `${totals.jumpRope}`, `${ropeMin} min total`);
+
+      // Dead hangs time (no sub-line)
+      addRow("Dead Hangs Time", `${dhMin} min ${dhRSec} sec`);
+
+      // Calories (no per-activity breakdown)
+      addRow("Estimated Calories Burned", weightKg ? `${kcalTotal.toLocaleString()} kcal` : "Enter weight above to estimate");
     }
 
     function renderAll(){
       const data = load();
-      if(!data._meta){ data._meta = { programStartISO: todayISO(), programWeeks: 12, ropeMinutesPerSession: ROPE_MIN_PER_SESSION }; }
+      if(!data._meta){
+        data._meta = {
+          programStartISO: todayISO(),
+          programWeeks: 12,
+          ropeMinutesPerSession: ROPE_MIN_PER_SESSION,
+          weightLb: null
+        };
+      }
       if(!data.days) data.days = {};
       startInput.value = data._meta.programStartISO || todayISO();
       weeksSel.value = String(data._meta.programWeeks || 12);
+      if(data._meta.weightLb) weightInput.value = data._meta.weightLb;
 
       const sel = data.lastSelectedDate && validDateStr(data.lastSelectedDate) ? data.lastSelectedDate : todayISO();
       selectedDateInput.value = sel;
@@ -313,7 +379,13 @@
       const data = load();
       const startStr = ensureStartDate();
       const weeks = Number(weeksSel.value)||12;
-      data._meta = { programStartISO: startStr, programWeeks: weeks, ropeMinutesPerSession: ROPE_MIN_PER_SESSION };
+      const weightLb = Number(weightInput.value)||null;
+      data._meta = {
+        programStartISO: startStr,
+        programWeeks: weeks,
+        ropeMinutesPerSession: ROPE_MIN_PER_SESSION,
+        weightLb
+      };
       save(data); renderAll();
     }
 
@@ -322,7 +394,6 @@
       else { tabTotals.classList.add('active'); tabToday.classList.remove('active'); totalsCard.hidden=false; todayCard.hidden=true; }
     }
 
-    // Init + events
     (function init(){ build(); })();
     applyBtn.addEventListener("click", build);
     resetBtn.addEventListener("click", () => { const data=load(); const iso=selectedDateInput.value||todayISO(); data.days[iso]=emptyDay(); save(data); renderAll(); });
