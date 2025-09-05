@@ -33,3 +33,32 @@ Total View
 - Rope: `sessions × 2 min`  
 - Dead Hang: `sessions × 10 sec`  
 - Calories: weight-based estimate
+
+# Suggested 12-Week Alternating Plan (example)
+
+Alternate **Day A** / **Day B**. Keep jump rope **10 min daily** (5 sessions).
+
+### Day A — 10k Steps
+- 10k steps (brisk)
+- AM Abs 10 min (45/25)
+- Pushups 5×3 (incline or regular)
+- Jump rope 2 min × **5** (spread across day)
+- PM Abs 10 min (45/25)
+- Pushups 5×3
+- Dead hang 10 sec
+
+**Log:** Steps **1**, Interval **0**, Abs **2**, Pushups **2**, Rope **5**, Dead Hang **1**
+
+### Day B — Japanese Interval (10k total)
+- 5 min near-jog / 5 min brisk, repeat to **10k steps**
+- AM Abs 10 min (45/25)
+- Pushups 5×3
+- Jump rope 2 min × **5**
+- PM Abs 10 min (45/25)
+- Dead hang 10 sec
+- Pushups 5×3
+
+**Log:** Steps **0**, Interval **1**, Abs **2**, Pushups **2**, Rope **5**, Dead Hang **1**
+
+## Aesthetic
+Clean, glossy, **Pokémon GO–inspired** hearts and buddy meter.
